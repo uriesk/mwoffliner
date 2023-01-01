@@ -443,7 +443,7 @@ async function execute(argv: any) {
     await getMainPage(dump, zimCreator, downloader);
 
     logger.log(`Getting articles`);
-    const { jsModuleDependencies, cssModuleDependencies } = await saveArticles(zimCreator, downloader, mw, dump, !!argv.skipBroken);
+    const { jsModuleDependencies, cssModuleDependencies } = await saveArticles(zimCreator, downloader, mw, dump, !!argv.skipBroken, argv.maxTimestamp);
 
     logger.log(`Found [${jsModuleDependencies.size}] js module dependencies`);
     logger.log(`Found [${cssModuleDependencies.size}] style module dependencies`);

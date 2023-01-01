@@ -117,6 +117,14 @@ class MediaWiki {
     return `${this.veApiUrl.href}${encodeURIComponent(articleId)}`;
   }
 
+  public getReApiArticleUrl(articleId: string, maxTimestamp?: string): string {
+    const reArticleUrl = `${this.apiUrl.href}action=query&prop=revisions&rvprop=ids%7Ctimestamp&format=json&titles=${encodeURIComponent(articleId)}`;
+    if (maxTimestamp) {
+      return `${reArticleUrl}&rvlimit=1&rvdir=older&rvstart=${encodeURIComponent(articleId)}`;
+    }
+    return reArticleUrl;
+  }
+
   public getDesktopRestApiArticleUrl(articleId: string): string {
     return `${this.desktopRestApiUrl.href}${encodeURIComponent(articleId)}`;
   }

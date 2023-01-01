@@ -394,6 +394,19 @@ class Downloader {
     };
   }
 
+  public async getArticleRevisionOfTimestamp(articleId: string, maxTimestamp: string): Promise<[string, string] | null> {
+    const articleReUrl = this.mw.getReApiArticleUrl(articleId, maxTimestamp);
+    const json = await this.getJSON<MwApiResponse>(articleReUrl);
+    if (json.error) {
+      throw json.error;
+    }
+    const { revisions } = Object.entries(json.query.pages)[0][1];
+    if (!revisions) {
+      return null;
+    }
+    return [pageRevisions.revid, pageRevisions.timestamp];
+  }
+
   public async getArticle(articleId: string, dump: Dump): Promise<RenderedArticle[]> {
     const isMainPage = dump.isMainPage(articleId);
     const articleApiUrl = this.getArticleUrl(articleId, isMainPage);

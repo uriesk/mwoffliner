@@ -159,7 +159,23 @@ async function getAllArticlesToKeep(downloader: Downloader, mw: MediaWiki, dump:
     );
 }
 
-export async function saveArticles(zimCreator: ZimCreator, downloader: Downloader, mw: MediaWiki, dump: Dump, skipBroken: boolean) {
+async function getAllArticleRevisions(downloader: Downloader, mw: MediaWiki, dump: Dump, maxTimestamp: string) {
+    await articleDetailXId.iterateItems(
+        downloader.speed,
+        async (articleKeyValuePairs) => {
+            for (const [articleId] of Object.entries(articleKeyValuePairs)) {
+                const revisions = await downloader.getArticleRevisionOfTimestamp(articleId, maxTimestamp);
+                if (!revisions) {
+                    logger.info(`Article ${articleId} did not exist yet`);
+                }
+                const [ articleRevision, timestamp ] = revisions;
+                logger.info(`Got revision ${articleRevision} from ${timestamp} for article ${articleId}`);
+            }
+        }
+    );
+}
+
+export async function saveArticles(zimCreator: ZimCreator, downloader: Downloader, mw: MediaWiki, dump: Dump, skipBroken: boolean, maxTimestamp?: string) {
     const jsModuleDependencies = new Set<string>();
     const cssModuleDependencies = new Set<string>();
     let jsConfigVars = '';
@@ -170,6 +186,10 @@ export async function saveArticles(zimCreator: ZimCreator, downloader: Downloade
 
     if (dump.customProcessor?.shouldKeepArticle) {
         await getAllArticlesToKeep(downloader, mw, dump);
+    }
+
+    if (maxTimestamp) {
+        await getAllArticleRevisions(downloader, mw, dump);
     }
 
     await articleDetailXId.iterateItems(
